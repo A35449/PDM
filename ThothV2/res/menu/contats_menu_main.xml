@@ -1,0 +1,16 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.example.thothv2.thothcontacts.MainActivity" >
+
+     <item
+        android:id="@+id/itemSettings"
+        android:orderInCategory="100"
+        android:showAsAction="never"
+        android:title="Config"/>
+    <item
+        android:id="@+id/itemEdit"
+        android:orderInCategory="100"
+        android:showAsAction="never"
+        android:title="Edit Contact Birthday"/>
+
+</menu>

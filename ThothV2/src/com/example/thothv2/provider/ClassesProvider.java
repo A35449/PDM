@@ -69,14 +69,15 @@ public class ClassesProvider extends ThothProvider {
 	public int delete(Uri uri, String whereClause, String[] whereArgs) {
 		SQLiteDatabase db =  _sql.getWritableDatabase();
 		
-		return db.delete(uri.toString(), whereClause, whereArgs);
+		return db.delete("classes", whereClause, whereArgs);
 	}
 
 	@Override
 	public int update(Uri uri, ContentValues values, String selection,
 			String[] selectionArgs) {
-		// TODO Auto-generated method stub
-		return 0;
+		SQLiteDatabase db =  _sql.getWritableDatabase();
+		
+		return db.update("classes", values, selection, selectionArgs);
 	}
 
 	@Override

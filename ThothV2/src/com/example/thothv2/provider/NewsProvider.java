@@ -14,12 +14,15 @@ public class NewsProvider extends ThothProvider{
 
 	private final static int ROOT_NEWS  = 10;
 	private final static int NEWS = 11;
+	private final static int CLASSES_NEWS = 12;
 	private static final List<Integer> uriCodes = new LinkedList<Integer>();
 	
 	static {
 		uriCodes.add(NEWS);
+		uriCodes.add(CLASSES_NEWS);
 		_urimatcher = new UriMatcher(ROOT_NEWS);
 		_urimatcher.addURI(AUTHORITY,"news",NEWS);
+		_urimatcher.addURI(AUTHORITY, "classes/#/news", CLASSES_NEWS);
 	}
 	
 	@Override
@@ -33,6 +36,12 @@ public class NewsProvider extends ThothProvider{
 			case NEWS:
 				c = db.query("news", projection, 
 						selection, selectionArgs, 
+						null, null, sortOrder);
+				return c;	
+				
+			case CLASSES_NEWS:
+				c = db.query("news", projection, 
+						"_classes = ?", new String[]{uri.getPathSegments().get(1)}, 
 						null, null, sortOrder);
 				return c;	
 				
@@ -52,21 +61,25 @@ public class NewsProvider extends ThothProvider{
 	    // insert row
 	    long tag_id = db.insert("news",null, values);
 	    
-	    String uri_id = uri.toString() + "\\" + Long.toString(tag_id);
-	    return Uri.parse(uri_id);// TODO Auto-generated method stub
+	    String uri_id = uri.toString() + "/" + Long.toString(tag_id);
+	    return Uri.parse(uri_id);
 	}
 
 	@Override
 	public int delete(Uri uri, String selection, String[] selectionArgs) {
-		// TODO Auto-generated method stub
-		return 0;
+		
+		SQLiteDatabase db = _sql.getWritableDatabase();
+	    // delete row
+	    return db.delete("news",selection, selectionArgs);
 	}
 
 	@Override
 	public int update(Uri uri, ContentValues values, String selection,
 			String[] selectionArgs) {
-		// TODO Auto-generated method stub
-		return 0;
+		
+		SQLiteDatabase db = _sql.getWritableDatabase();
+	    // update row
+	    return db.update("news", values, selection, selectionArgs);
 	}
 	
 	@Override

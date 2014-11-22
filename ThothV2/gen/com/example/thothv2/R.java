@@ -25,29 +25,30 @@ public final class R {
         public static final int ic_launcher=0x7f020000;
     }
     public static final class id {
-        public static final int action_settings=0x7f080014;
+        public static final int action_settings=0x7f080015;
         public static final int add_button=0x7f080000;
-        public static final int clean_button=0x7f080007;
+        public static final int clean_button=0x7f080008;
         public static final int contact_button=0x7f080002;
-        public static final int contact_item_date=0x7f08000a;
-        public static final int contact_item_name=0x7f080009;
-        public static final int contact_item_thumb=0x7f08000d;
+        public static final int contact_item_date=0x7f08000b;
+        public static final int contact_item_name=0x7f08000a;
+        public static final int contact_item_thumb=0x7f08000e;
         public static final int delete_button=0x7f080003;
-        public static final int itemEdit=0x7f080013;
-        public static final int itemSettings=0x7f080012;
-        public static final int item_name=0x7f08000c;
-        public static final int item_thumb=0x7f08000b;
-        public static final int news_content=0x7f08000f;
-        public static final int news_date=0x7f080010;
-        public static final int news_header=0x7f08000e;
-        public static final int textView=0x7f080005;
-        public static final int thothList=0x7f080004;
+        public static final int itemEdit=0x7f080014;
+        public static final int itemSettings=0x7f080013;
+        public static final int item_name=0x7f08000d;
+        public static final int item_thumb=0x7f08000c;
+        public static final int news_content=0x7f080010;
+        public static final int news_date=0x7f080011;
+        public static final int news_header=0x7f08000f;
+        public static final int query_button=0x7f080004;
+        public static final int textView=0x7f080006;
+        public static final int thothList=0x7f080005;
         public static final int thoth_button=0x7f080001;
-        public static final int thoth_item_name=0x7f080011;
-        public static final int thoth_menu_main_action_settings=0x7f080015;
-        public static final int thoth_menu_news_action_settings=0x7f080016;
-        public static final int tvClass=0x7f080008;
-        public static final int update_button=0x7f080006;
+        public static final int thoth_item_name=0x7f080012;
+        public static final int thoth_menu_main_action_settings=0x7f080016;
+        public static final int thoth_menu_news_action_settings=0x7f080017;
+        public static final int tvClass=0x7f080009;
+        public static final int update_button=0x7f080007;
     }
     public static final class layout {
         public static final int activity_contacts=0x7f030000;

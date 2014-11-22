@@ -45,4 +45,13 @@
         android:layout_marginRight="16dp"
         android:text="Contact App" />
 
+    <Button
+        android:id="@+id/query_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/delete_button"
+        android:layout_marginTop="58dp"
+        android:layout_toLeftOf="@+id/delete_button"
+        android:text="Query" />
+
 </RelativeLayout>

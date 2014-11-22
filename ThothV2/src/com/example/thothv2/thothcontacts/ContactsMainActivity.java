@@ -26,6 +26,8 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.SimpleAdapter;
 
@@ -34,11 +36,26 @@ public class ContactsMainActivity extends ListActivity {
 	final static String[] days = {"7 Days","15 Days","30 Days"};
 	final static int[] dayValue = {7, 15, 30};
 	int selectedDays;
+	//trololo
+	Button not;
 	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_contacts);
+        
+        /// trololol
+        not=(Button)findViewById(R.id.button_notification);
+        not.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+			        /*Intent i = new Intent();
+			        i.setAction("android.intent.action.ANNIVERSARY_CHECK");
+			        getBaseContext().sendBroadcast(i);*/
+				
+			}
+		});
         
         SharedPreferences sp = getSharedPreferences("config", Context.MODE_PRIVATE);
         selectedDays = sp.getInt("days", 0);

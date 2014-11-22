@@ -29,7 +29,7 @@
         android:theme="@style/AppTheme" >
         
         <provider
-	    android:name="com.example.thothv2.provider.ClassesProvider"
+	    android:name="com.example.thothv2.provider.ThothProvider"
 	    android:authorities="com.example.thothv2"
 	    android:exported="true"
 	    android:permission="com.example.thothv2.ACCESS"

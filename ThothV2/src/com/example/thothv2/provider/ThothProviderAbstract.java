@@ -11,7 +11,7 @@ public abstract class ThothProviderAbstract extends ContentProvider {
 	
 	protected static final String AUTHORITY = "com.example.thothv2";	
 
-	public SQLRunner _sql;
+	public static SQLRunner _sql;
 	public static  UriMatcher _urimatcher;
 
 	@Override

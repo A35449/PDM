@@ -67,8 +67,7 @@ public class NewsProvider extends ThothProviderAbstract{
 	
 	@Override
 	public boolean onCreate() {
-		_sql = new SQLRunner(getContext());
-		return false;
+		return true;
 	}
 
 }

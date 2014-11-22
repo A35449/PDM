@@ -76,8 +76,6 @@ public class ClassesProvider extends ThothProviderAbstract {
 
 	@Override
 	public boolean onCreate() {
-		if(_sql != null) _sql.close();
-		_sql = new SQLRunner(getContext());
 		return true;
 	}
 

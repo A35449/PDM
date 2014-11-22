@@ -1,19 +1,23 @@
 package com.example.thothv2.provider;
 
 
+import java.util.LinkedList;
+import java.util.List;
+
 import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 
-public class NewsProvider extends ThothProviderAbstract{
+public class NewsProvider extends ThothProvider{
 
-	public final static int ROOT_NEWS  = 10;
-	public final static int NEWS = 11;
+	private final static int ROOT_NEWS  = 10;
+	private final static int NEWS = 11;
+	private static final List<Integer> uriCodes = new LinkedList<Integer>();
 	
 	static {
-		
+		uriCodes.add(NEWS);
 		_urimatcher = new UriMatcher(ROOT_NEWS);
 		_urimatcher.addURI(AUTHORITY,"news",NEWS);
 	}
@@ -68,6 +72,16 @@ public class NewsProvider extends ThothProviderAbstract{
 	@Override
 	public boolean onCreate() {
 		return true;
+	}
+	
+	@Override
+	protected ThothProvider getProvider(int uriCode)
+	{
+		if(uriCodes.contains(uriCode))
+			return this;
+		
+		return null;
+		
 	}
 
 }

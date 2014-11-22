@@ -1,20 +1,25 @@
 package com.example.thothv2.provider;
 
 
+import java.util.LinkedList;
+import java.util.List;
+
 import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 
-public class ClassesProvider extends ThothProviderAbstract {
+public class ClassesProvider extends ThothProvider {
 	
-	public final static int CLASSES = 1;
-	public final static int SELECTED = 2;
-	public final static int NEWS = 3;
-	public final static int ROOT_CLASSES = 0;
+	private final static int CLASSES = 1;
+	private final static int SELECTED = 2;
+	private final static int ROOT_CLASSES = 0;
+	private static final List<Integer> uriCodes = new LinkedList<Integer>();
 	
 	static {
+		uriCodes.add(CLASSES);
+		uriCodes.add(SELECTED);
 		_urimatcher = new UriMatcher(ROOT_CLASSES);
 		_urimatcher.addURI(AUTHORITY, "classes", CLASSES);
 		_urimatcher.addURI(AUTHORITY, "classes/selected", SELECTED);
@@ -77,6 +82,16 @@ public class ClassesProvider extends ThothProviderAbstract {
 	@Override
 	public boolean onCreate() {
 		return true;
+	}
+	
+	@Override
+	protected ThothProvider getProvider(int uriCode)
+	{
+		if(uriCodes.contains(uriCode))
+			return this;
+		
+		return null;
+		
 	}
 
 }

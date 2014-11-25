@@ -20,7 +20,6 @@ public class ClassesProvider extends ThothProvider {
 	static {
 		uriCodes.add(CLASSES);
 		uriCodes.add(SELECTED);
-		_urimatcher = new UriMatcher(ROOT_CLASSES);
 		_urimatcher.addURI(AUTHORITY, "classes", CLASSES);
 		_urimatcher.addURI(AUTHORITY, "classes/selected", SELECTED);
 	}

@@ -1,7 +1,5 @@
 package com.example.thothv2.thothnews.items;
 
-import java.util.Date;
-
 public class ThothNews {
 
 	public int id;

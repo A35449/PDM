@@ -4,6 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import android.content.ContentValues;
+import android.content.UriMatcher;
 import android.database.Cursor;
 import android.net.Uri;
 
@@ -12,7 +13,7 @@ public class ThothProvider extends ThothProviderAbstract{
 	private static List<ThothProvider> providers = new LinkedList<ThothProvider>();
 	
 	static {
-		
+		_urimatcher = new UriMatcher(0);
 		providers.add(new NewsProvider());
 		providers.add(new ClassesProvider());
 	}

@@ -36,15 +36,12 @@ public class ThothNewsMainActivity extends ListActivity {
     	 super.onResume();
     	 SharedPreferences prefs = getSharedPreferences("turmas", Context.MODE_PRIVATE);
          
-         if(!prefs.contains("classes"))
+         //if(!prefs.contains("classes"))
  	        callClassSelector();
          
          Collection<String> classes = prefs.getStringSet("classes", null);
          if(classes == null) return;
          Integer[] classesIds = parseToInt(classes);
-        /* Integer[] classesIds = new Integer[2];
-         classesIds[0] = Integer.valueOf(40);
-         classesIds[1] = Integer.valueOf(62);*/
          
          new AsyncTask<Integer, Void, List<ThothClass>>(){
 

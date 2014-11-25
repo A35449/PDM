@@ -7,5 +7,8 @@ public class ThothClass {
 	public int id;
 	public String name;
 	public String semester;
+	public String newsitemsURL;
+	public int selected;
+	
 	
 }

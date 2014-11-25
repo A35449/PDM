@@ -20,7 +20,6 @@ public class NewsProvider extends ThothProvider{
 	static {
 		uriCodes.add(NEWS);
 		uriCodes.add(CLASSES_NEWS);
-		_urimatcher = new UriMatcher(ROOT_NEWS);
 		_urimatcher.addURI(AUTHORITY,"news",NEWS);
 		_urimatcher.addURI(AUTHORITY, "classes/#/news", CLASSES_NEWS);
 	}

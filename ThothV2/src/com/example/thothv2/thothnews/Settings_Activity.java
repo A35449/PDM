@@ -5,6 +5,7 @@ package com.example.thothv2.thothnews;
  */
 
 import android.app.Activity;
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
@@ -25,11 +26,8 @@ import com.example.thothv2.thothnews.items.ThothClass;
 import com.example.thothv2.thothnews.utils.SimpleJSONRetriever;
 
 import java.io.IOException;
-import java.util.Collection;
-import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -41,57 +39,8 @@ public class Settings_Activity extends Activity {
     private SettingsAdapter adpt;
     private Button button_update, button_clean;
     private SharedPreferences sharedSpace;
-   
     
-    private boolean isSelected(int id, Integer[] selected_items){
-    	
-    	for(int i : selected_items){
-    		if (i == id) return true;
-    	}
-    	return false;
-    }
     
-	private Integer[] parseToInt(Collection<String> toParse) {
-		Integer[] result = new Integer[toParse.size()];
-		int i = 0;
-		
-		for(String s : toParse)
-		{
-			result[i] = Integer.valueOf(Integer.parseInt(s));
-			i++;
-		}
-					
-		return result;
-	}
-    
-    private void restoreMarks(ThothClass[] result){    
-        
-        Collection<String> classes;
-        if((classes= sharedSpace.getStringSet("classes", null))== null) return;
-        
-        Integer[] selected_items = parseToInt(classes);
-      
-        
-        for(int i = 0 ; i < result.length; i++)
-        {
-        	if(isSelected(result[i].id,selected_items))
-        		thothList.setItemChecked(i,true);
-        }
-    }
-
-    private ContentValues extractValues(ThothClass c)
-    {
-    	ContentValues cv = new ContentValues();
-    	cv.put("_id", c.id);
-    	cv.put("_selected", 0);
-    	cv.put("name", c.name);
-    	cv.put("semester", c.semester);
-    	//cv.put("newsitemsURL", c.newsitemsURL);
-    	
-    	return cv;
-    	
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -102,31 +51,61 @@ public class Settings_Activity extends Activity {
         
     	sharedSpace = getApplicationContext().getSharedPreferences("turmas", MODE_PRIVATE);
     	
-    	ThothInfo getter = new ThothInfo() {
-            @Override
-            protected void onPostExecute(List<ThothClass> list) {
-
-                adpt = new SettingsAdapter(Settings_Activity.this,list);
-            	thothList.setAdapter(adpt);
-                    
-            }    	
-		};
-    	
     	if(!sharedSpace.contains("firstRun"))
     	{
     		sharedSpace.edit().putBoolean("firstRun", false).commit();
     		//query api for classes
-    		getter.execute(false);
+    		new ThothInfo().execute();
     	}
     	else
     	{
     		//query db for classes  
-    		getter.execute(true);
+    		new ThothInfo() {
+        		@Override
+                protected List<ThothClass> doInBackground(Void... voids) {
+                    
+                    	Cursor c = getContentResolver().query(Uri.parse("content://"+ThothNewsMainActivity.AUTHORITY+"/classes"), null, null, null, null);
+                    	return parseFrom(c);
+                }  	
+        		
+        		@Override
+        		protected void onPostExecute(List<ThothClass> list)
+        		{
+        			super.onPostExecute(list);
+        			restoreMarks(list);
+        		}
+        		
+        		private void restoreMarks(List<ThothClass> result){    
+        	        
+        	        for(int i = 0 ; i < result.size(); i++)
+        	        {
+        	        	if(result.get(i).selected > 0)
+        	        		thothList.setItemChecked(i,true);
+        	        }
+        	    }
+        		
+        		private List<ThothClass> parseFrom(Cursor c)
+                {
+                	List<ThothClass> list = new LinkedList<ThothClass>();
+                	ThothClass cls;
+                	
+                	while(c.moveToNext())
+                	{
+                		cls = new ThothClass();
+                		cls.id = c.getInt(0);
+                		cls.selected = c.getInt(1);
+                		cls.name = c.getString(2);
+                		cls.semester = c.getString(3);
+                		list.add(cls);
+                	}
+                	
+        			return list;
+                	
+                }
+    		}.execute();
     		
     	}
     	
-        
-        
         button_update = (Button) findViewById(R.id.update_button);
         button_clean = (Button) findViewById(R.id.clean_button);
         button_update.setOnClickListener(new View.OnClickListener() {
@@ -146,7 +125,51 @@ public class Settings_Activity extends Activity {
 			        }
 			    }
 			    
-		    	Toast.makeText(getApplicationContext(), "Saved!", Toast.LENGTH_SHORT).show();
+			    //update _selected status
+			    new AsyncTask<ThothClass, Void, Void>(){
+
+					@Override
+					protected Void doInBackground(ThothClass... selectedClasses) {
+						
+						
+						ContentValues cv = new ContentValues();
+						ContentResolver cr = getContentResolver();
+						
+						//reset entries to 'not selected' state (_selected = 0)
+						cv.put("_selected", 0);
+						cr.update(Uri.parse("content://"+ThothNewsMainActivity.AUTHORITY+"/classes"), cv, null, null);
+						cv.remove("_selected");
+						//update selected entries to 'selected' state (_selected = 1)
+						String where = "";
+						String[] selectionArgs = new String[selectedClasses.length];
+						
+						for(int i = 0; i < selectedClasses.length; i++)
+						{
+							if(i == selectedClasses.length - 1)
+								where += "_id=?";
+							else
+								where += "_id=? OR ";
+							
+							selectionArgs[i] = Integer.toString(selectedClasses[i].id);
+						}
+						cv.put("_selected", 1);
+						
+						cr.update(Uri.parse("content://"+ThothNewsMainActivity.AUTHORITY+"/classes"), cv, where, selectionArgs);
+						
+						return null;
+					}
+			    	
+					@Override
+					protected void onPostExecute(Void voids)
+					{
+						Toast.makeText(getApplicationContext(), "Saved!", Toast.LENGTH_SHORT).show();
+					}
+			    }.execute(selectedItems.toArray(new ThothClass[0]));
+			    
+			    //TODO
+		    	//fetch and save news for selected classes
+			    //insert only if news_id not in db
+			    
 			}
 		});
         
@@ -163,45 +186,44 @@ public class Settings_Activity extends Activity {
         
     }
     
-    class ThothInfo extends AsyncTask<Boolean, Void, List<ThothClass>> {
+    class ThothInfo extends AsyncTask<Void, Void, List<ThothClass>> {
 
         @Override
-        protected List<ThothClass> doInBackground(Boolean... fromDb) {
-            if(fromDb[0] == false)
-            {
-    	    	try {
-    	            SimpleJSONRetriever retriever = new SimpleJSONRetriever(ThothNewsMainActivity.BASE_URL);
-    	            String data = retriever.getJSON(ThothClass.URI);
-    	           
-    	            List<ThothClass> list = parseFrom(data);
-    	            
-                    for (ThothClass c : list)
-                    {
-                        if(c.semester.compareTo("1415i") != 0) /*HARDCODED*/
-                            list.remove(c);
-                    }
+        protected List<ThothClass> doInBackground(Void... voids) {
+        
+	    	try {
+	            SimpleJSONRetriever retriever = new SimpleJSONRetriever(ThothNewsMainActivity.BASE_URL);
+	            String data = retriever.getJSON(ThothClass.URI);
+	           
+	            List<ThothClass> list = parseFrom(data);
+	            
+                for (ThothClass c : list)
+                {
+                    if(c.semester.compareTo("1415i") != 0) /*HARDCODED*/
+                        list.remove(c);
+                }
+                
+                for(ThothClass tc : list)
+                	getContentResolver().insert(Uri.parse("content://"+ThothNewsMainActivity.AUTHORITY+"/classes"), extractValues(tc));
                     
-                    for(ThothClass tc : list)
-                    	getContentResolver().insert(Uri.parse("content://com.example.thothv2/classes"), extractValues(tc));
-                        
-    	            return list;
-    	            
-    	        } catch (IOException e ) {
-    	            return null;
-    	        }catch (JSONException j) {
-    	            return null;
-    	        }
-            }
-            else{
-            	
-            	Cursor c = getContentResolver().query(Uri.parse("content://com.example.thothv2/classes"), null, null, null, null);
-            	return parseFrom(c);
-            	
-            }
+	            return list;
+	            
+	        } catch (IOException e ) {
+	            return null;
+	        }catch (JSONException j) {
+	            return null;
+	        }
             
         }
-            
+        
+        @Override
+        protected void onPostExecute(List<ThothClass> list) {
 
+            adpt = new SettingsAdapter(Settings_Activity.this,list);
+        	thothList.setAdapter(adpt);
+                
+        }
+            
         private List<ThothClass> parseFrom(String s) throws JSONException {
             JSONObject root = new JSONObject(s);
             JSONArray classes = root.getJSONArray("classes");
@@ -219,24 +241,19 @@ public class Settings_Activity extends Activity {
             return info;
         }
         
-        private List<ThothClass> parseFrom(Cursor c)
+        private ContentValues extractValues(ThothClass c)
         {
-        	List<ThothClass> list = new LinkedList<ThothClass>();
-        	ThothClass cls;
+        	ContentValues cv = new ContentValues();
+        	cv.put("_id", c.id);
+        	cv.put("_selected", 0);
+        	cv.put("name", c.name);
+        	cv.put("semester", c.semester);
+        	//cv.put("newsitemsURL", c.newsitemsURL);
         	
-        	while(c.moveToNext())
-        	{
-        		cls = new ThothClass();
-        		cls.id = c.getInt(0);
-        		cls.selected = c.getInt(1);
-        		cls.name = c.getString(2);
-        		cls.semester = c.getString(3);
-        		list.add(cls);
-        	}
-        	
-			return list;
+        	return cv;
         	
         }
+        
     }
     
     

@@ -1,26 +1,18 @@
 package com.example.thothv2.thothnews;
 
-import java.io.IOException;
-import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import com.example.thothv2.R;
 import com.example.thothv2.thothnews.adapters.MainPageAdapter;
 import com.example.thothv2.thothnews.items.ThothClass;
-import com.example.thothv2.thothnews.utils.SimpleJSONRetriever;
-
 
 import android.app.ListActivity;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -30,61 +22,55 @@ import android.widget.ListView;
 public class ThothNewsMainActivity extends ListActivity {
 
 	public static final String BASE_URL= "http://thoth.cc.e.ipl.pt/api/v1";
+	public static final String AUTHORITY = "com.example.thothv2";
 	
     @Override
     protected void onResume(){
     	 super.onResume();
-    	 SharedPreferences prefs = getSharedPreferences("turmas", Context.MODE_PRIVATE);
-         
-         //if(!prefs.contains("classes"))
- 	        callClassSelector();
-         
-         Collection<String> classes = prefs.getStringSet("classes", null);
-         if(classes == null) return;
-         Integer[] classesIds = parseToInt(classes);
-         
-         new AsyncTask<Integer, Void, List<ThothClass>>(){
+    	 
+    	 new AsyncTask<Void, Void, List<ThothClass>>(){
 
- 			@Override
- 			protected List<ThothClass> doInBackground(Integer... params) {
- 				
- 				List<ThothClass> classes = new LinkedList<ThothClass>();
- 				
- 				try {
- 					SimpleJSONRetriever jr = new SimpleJSONRetriever(BASE_URL);
- 					
- 					for(Integer i : params)
- 						classes.add(parseClassFromJSON(jr.getJSON("/"+ThothClass.URI+"/"+i.intValue())));
- 					
- 				} catch (JSONException e) {
- 					Log.d("doInBackground", "JSONException");
- 				} catch (IOException e) {
- 					Log.d("SimpleJSONRetriever", "IOException");
- 				}
- 				
- 				return classes;
- 			}
- 			
- 			private ThothClass parseClassFromJSON(String json) throws JSONException
- 			{
- 				JSONObject root = new JSONObject(json);
- 				ThothClass tc= new ThothClass();
- 				tc.name = root.getString("fullName");
- 				tc.id = root.getInt("id");
- 				
- 				return tc;
- 				
- 			}
- 			
- 			@Override
+			@Override
+			protected List<ThothClass> doInBackground(Void... params) {
+
+				Cursor c = getContentResolver().query(Uri.parse("content://"+ThothNewsMainActivity.AUTHORITY+"/classes"), null, "_selected = 1", null, null);
+				
+				return parseFrom(c);
+			}
+			
+			private List<ThothClass> parseFrom(Cursor c)
+            {
+            	List<ThothClass> list = new LinkedList<ThothClass>();
+            	ThothClass cls;
+            	
+            	while(c.moveToNext())
+            	{
+            		cls = new ThothClass();
+            		cls.id = c.getInt(0);
+            		cls.selected = c.getInt(1);
+            		cls.name = c.getString(2);
+            		cls.semester = c.getString(3);
+            		list.add(cls);
+            	}
+            	
+    			return list;
+            	
+            }
+    		 
+			@Override
  			protected void onPostExecute(List<ThothClass> classes)
  			{
- 				MainPageAdapter adp = new MainPageAdapter(ThothNewsMainActivity.this, classes);
- 		        setListAdapter(adp);
+				if(classes.size() > 0)
+				{
+	 				MainPageAdapter adp = new MainPageAdapter(ThothNewsMainActivity.this, classes);
+	 		        setListAdapter(adp);
+				}
+				else
+					callClassSelector();
  			}
- 			
-         }.execute(classesIds);
-         
+    		 
+    	 }.execute();
+    	 
     }
 	
     @Override
@@ -93,19 +79,6 @@ public class ThothNewsMainActivity extends ListActivity {
         setContentView(R.layout.activity_thoth);     
     }
 
-	private Integer[] parseToInt(Collection<String> toParse) {
-		Integer[] result = new Integer[toParse.size()];
-		int i = 0;
-		
-		for(String s : toParse)
-		{
-			result[i] = Integer.valueOf(Integer.parseInt(s));
-			i++;
-		}
-					
-		return result;
-	}
-	
 	@Override
 	protected void onListItemClick(ListView l, View v, int position, long id)
 	{
@@ -126,9 +99,9 @@ public class ThothNewsMainActivity extends ListActivity {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-        if (id == R.id.thoth_menu_main_action_settings) {
+        //if (id == R.id.thoth_menu_main_action_settings) {
             callClassSelector();
-        }
+        //}
         return super.onOptionsItemSelected(item);
     }
     
